@@ -1,6 +1,11 @@
-resource "null_resource" "tfc_test" {
-  count = 10
-  provisioner "local-exec" {
-    command = "echo 'test ${count.index}'"
+provider "aws" {
+  region = "ap-southeast-1"
+}
+
+resource "aws_instance" "first-ec2" {
+  ami = "ami-0af2f764c580cc1f9"
+  instance_type = "t2.micro"
+  tags = {
+    Name = "hello world"
   }
 }
