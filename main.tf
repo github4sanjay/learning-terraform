@@ -1,5 +1,5 @@
 resource "null_resource" "tfc_test" {
-  count = 5
+  count = 3
   provisioner "local-exec" {
     command = "echo 'test ${count.index}'"
   }
