@@ -1,31 +1,29 @@
-# Resource: aws_vpc
-# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc
+module "vpc" {
+  source  = "terraform-aws-modules/vpc/aws"
+  version = "3.14.3"
 
-resource "aws_vpc" "main" {
-  # The CIDR block for the VPC.
-  cidr_block = "192.168.0.0/16"
+  name = "main"
+  cidr = "10.0.0.0/16"
 
-  # Makes your instances shared on the host.
-  instance_tenancy = "default"
+  azs             = ["us-east-1a", "us-east-1b"]
+  private_subnets = ["10.0.0.0/19", "10.0.32.0/19"]
+  public_subnets  = ["10.0.64.0/19", "10.0.96.0/19"]
 
-  # Required for EKS. Enable/disable DNS support in the VPC.
-  enable_dns_support = true
-
-  # Required for EKS. Enable/disable DNS hostnames in the VPC.
-  enable_dns_hostnames = true
-
-  # Requests an Amazon-provided IPv6 CIDR block with a /56 prefix length for the VPC.
-  assign_generated_ipv6_cidr_block = false
-
-  # A map of tags to assign to the resource.
-  tags = {
-    Name = "main"
+  public_subnet_tags = {
+    "kubernetes.io/role/elb" = "1"
   }
-}
+  private_subnet_tags = {
+    "kubernetes.io/role/internal-elb" = "1"
+  }
 
-output "vpc_id" {
-  value       = aws_vpc.main.id
-  description = "VPC id."
-  # Setting an output value as sensitive prevents Terraform from showing its value in plan and apply.
-  sensitive = false
+  enable_nat_gateway     = true
+  single_nat_gateway     = true
+  one_nat_gateway_per_az = false
+
+  enable_dns_hostnames = true
+  enable_dns_support   = true
+
+  tags = {
+    Environment = "staging"
+  }
 }
